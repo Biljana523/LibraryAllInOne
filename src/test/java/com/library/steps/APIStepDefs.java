@@ -15,6 +15,9 @@ import org.junit.Assert;
 
 import java.util.List;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
@@ -69,6 +72,7 @@ public class APIStepDefs {
     @Given("Path param is {string}")
     public void path_param_is(String id) {
 
+
         this.id = id;
         givenPart.pathParam("id", id);
 
@@ -89,5 +93,56 @@ public class APIStepDefs {
         for (String eachField : dataList) {
             thenPart.body(eachField, is(notNullValue()));
         }
+
     }
+
+    /**
+     * US03_SK Scenario: Create a new book API
+     */
+
+    @Given("Request Content Type header is {string}")
+    public void request_content_type_header_is(String contentType) {
+        givenPart.contentType(contentType);
+
+    }
+
+    Map<String,Object> randomDataMap;
+    @Given("I create a random {string} as request body")
+    public void i_create_a_random_as_request_body(String randomData) {
+
+        Map<String, Object> requestBody = new LinkedHashMap<>();
+
+        switch (randomData) {
+            case "user":
+                requestBody = LibraryAPI_Util.getRandomUserMap();
+                break;
+            case "book":
+                requestBody = LibraryAPI_Util.getRandomBookMap();
+                break;
+            default:
+                throw new RuntimeException("Unexpected value: " + randomData);
+        }
+        System.out.println("requestBody = " + requestBody);
+        randomDataMap = requestBody;
+        givenPart.formParams(requestBody);
+
+    }
+
+    @When("I send POST request to {string} endpoint")
+    public void i_send_post_request_to_endpoint(String endpoint) {
+        response = givenPart.when().post(ConfigurationReader.getProperty("library.baseUri") + endpoint)
+                .prettyPeek();
+
+        thenPart=response.then();
+    }
+    @Then("the field value for {string} path should be equal to {string}")
+    public void the_field_value_for_path_should_be_equal_to(String path, String value) {
+
+        thenPart.body(path,is(value));
+
+    }
+
+
+
+
 }
