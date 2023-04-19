@@ -72,6 +72,30 @@ public class APIStepDefs {
     @Given("Path param is {string}")
     public void path_param_is(String id) {
 
+
+        this.id = id;
+        givenPart.pathParam("id", id);
+
+    }
+
+    @Then("{string} field should be same with path param")
+    public void field_should_be_same_with_path_param(String path) {
+
+        String path1 = thenPart.extract().jsonPath().getString(path);
+
+        Assert.assertEquals(path1, id);
+
+    }
+
+    @Then("following fields should not be null")
+    public void following_fields_should_not_be_null(List<String> dataList) {
+
+        for (String eachField : dataList) {
+            thenPart.body(eachField, is(notNullValue()));
+        }
+
+    }
+
     /**
      * US03_SK Scenario: Create a new book API
      */
@@ -119,26 +143,6 @@ public class APIStepDefs {
     }
 
 
-        this.id = id;
-        givenPart.pathParam("id", id);
 
-    }
-
-    @Then("{string} field should be same with path param")
-    public void field_should_be_same_with_path_param(String path) {
-
-        String path1 = thenPart.extract().jsonPath().getString(path);
-
-        Assert.assertEquals(path1, id);
-
-    }
-
-    @Then("following fields should not be null")
-    public void following_fields_should_not_be_null(List<String> dataList) {
-
-        for (String eachField : dataList) {
-            thenPart.body(eachField, is(notNullValue()));
-        }
-    }
 
 }
